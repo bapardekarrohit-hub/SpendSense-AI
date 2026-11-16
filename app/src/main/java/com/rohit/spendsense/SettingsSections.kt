@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -30,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.rohit.spendsense.ui.theme.BrandBlue
 import com.rohit.spendsense.ui.theme.BrandPurple
 import androidx.compose.material.icons.filled.Add
+import android.content.Context
 
 @Composable
 fun ProfileCard(name: String, email: String, onClick: () -> Unit) {
@@ -68,12 +70,12 @@ fun ProfileCard(name: String, email: String, onClick: () -> Unit) {
             }
             androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = name.ifBlank { "Your name" },
+                    text = name.ifBlank { stringResource(R.string.profile_your_name) },
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = email.ifBlank { "Tap to add your details" },
+                    text = email.ifBlank { stringResource(R.string.profile_tap_to_add) },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -85,15 +87,15 @@ fun ProfileCard(name: String, email: String, onClick: () -> Unit) {
 
 @Composable
 fun AccountSection(onProfile: () -> Unit, onPassword: () -> Unit, onPrivacy: () -> Unit) {
-    SettingsSection("Account") {
-        SettingsRow("Profile Information", "Update your personal details",
+    SettingsSection(stringResource(R.string.settings_account)) {
+        SettingsRow(stringResource(R.string.row_profile_title), stringResource(R.string.row_profile_sub),
             Color(0xFF4F46E5), { RowIcon(Icons.Filled.Person) }, onProfile)
         SettingsDivider()
-        SettingsRow("Change Password", "Needs an account (coming later)",
+        SettingsRow(stringResource(R.string.row_password_title), stringResource(R.string.row_password_sub),
             Color(0xFF16A34A), { RowIcon(Icons.Filled.Lock) }, onPassword,
-            trailing = { TrailingText("Soon", MaterialTheme.colorScheme.secondary) })
+            trailing = { TrailingText(stringResource(R.string.soon), MaterialTheme.colorScheme.secondary) })
         SettingsDivider()
-        SettingsRow("Privacy & Data", "How your data is handled",
+        SettingsRow(stringResource(R.string.row_privacy_title), stringResource(R.string.row_privacy_sub),
             Color(0xFF7C3AED), { RowIcon(Icons.Filled.Info) }, onPrivacy)
     }
 }
@@ -108,31 +110,35 @@ fun PreferencesSection(
     onLanguage: () -> Unit,
     onCurrency: () -> Unit
 ) {
-    SettingsSection("App Preferences") {
-        SettingsRow("Theme", "Choose your preferred appearance",
+    SettingsSection(stringResource(R.string.settings_preferences)) {
+        SettingsRow(stringResource(R.string.theme_title), stringResource(R.string.theme_sub),
             Color(0xFFB45309), { RowIcon(Icons.Filled.Settings) }, trailing = {})
         Row(
             modifier = Modifier.padding(start = 72.dp, end = 14.dp, bottom = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            listOf("system" to "System", "light" to "Light", "dark" to "Dark").forEach { option ->
+            listOf(
+                "system" to R.string.theme_system,
+                "light" to R.string.theme_light,
+                "dark" to R.string.theme_dark
+            ).forEach { option ->
                 FilterChip(
                     selected = themeMode == option.first,
                     onClick = { onThemeChange(option.first) },
-                    label = { Text(option.second) }
+                    label = { Text(stringResource(option.second)) }
                 )
             }
         }
         SettingsDivider()
-        SettingsRow("Language", "Select your app language",
+        SettingsRow(stringResource(R.string.row_language_title), stringResource(R.string.row_language_sub),
             Color(0xFF2563EB), { RowGlyph("A") }, onLanguage,
-            trailing = { TrailingText("English") })
+            trailing = { TrailingText(currentLanguageLabel()) })
         SettingsDivider()
-        SettingsRow("Currency", "Set your preferred currency",
+        SettingsRow(stringResource(R.string.row_currency_title), stringResource(R.string.row_currency_sub),
             Color(0xFF7C3AED), { RowGlyph(CurrencySettings.symbol) }, onCurrency,
             trailing = { TrailingText(currencyCode) })
         SettingsDivider()
-        SettingsRow("Notifications", "Budget alerts at 80% and 100%",
+        SettingsRow(stringResource(R.string.row_notif_title), stringResource(R.string.row_notif_sub),
             Color(0xFFDB2777), { RowIcon(Icons.Filled.Notifications) },
             trailing = { Switch(checked = notificationsOn, onCheckedChange = onNotificationsChange) })
     }
@@ -143,35 +149,43 @@ fun DataSection(
     onCloud: () -> Unit,
     onImport: () -> Unit,
     onExport: () -> Unit,
-    onWelcome: () -> Unit,
     onDelete: () -> Unit
 ) {
-    SettingsSection("Data & Sync") {
-        SettingsRow("Sync with Cloud", "Backup is not available yet",
-            Color(0xFF0891B2), { RowIcon(Icons.Filled.Refresh) }, onCloud,
-            trailing = { TrailingText("Not connected", Color(0xFFEF4444)) })
+    SettingsSection(stringResource(R.string.settings_data)) {
+        SettingsRow(stringResource(R.string.row_backup_title), stringResource(R.string.row_backup_sub),
+            Color(0xFF0891B2), { RowIcon(Icons.Filled.Refresh) }, onCloud)
         SettingsDivider()
-        SettingsRow("Import from CSV", "Add transactions from a file",
+        SettingsRow(stringResource(R.string.row_import_title), stringResource(R.string.row_import_sub),
             Color(0xFF059669), { RowIcon(Icons.Filled.Add) }, onImport)
         SettingsDivider()
-        SettingsRow("Export to CSV", "Save your transactions to a file",
+        SettingsRow(stringResource(R.string.row_export_title), stringResource(R.string.row_export_sub),
             Color(0xFF4F46E5), { RowIcon(Icons.Filled.Share) }, onExport)
         SettingsDivider()
-        SettingsRow("Show welcome page", "Show the start page next time",
-            Color(0xFF0EA5E9), { RowIcon(Icons.Filled.PlayArrow) }, onWelcome)
-        SettingsDivider()
-        SettingsRow("Delete all data", "Remove everything from this phone",
+        SettingsRow(stringResource(R.string.row_delete_title), stringResource(R.string.row_delete_sub),
             Color(0xFFDC2626), { RowIcon(Icons.Filled.Delete) }, onDelete)
     }
 }
 
 @Composable
 fun HelpSection(onHelp: () -> Unit, onContact: () -> Unit) {
-    SettingsSection("Help & Support") {
-        SettingsRow("Help Center", "FAQs and guides",
+    SettingsSection(stringResource(R.string.settings_help)) {
+        SettingsRow(stringResource(R.string.row_help_title), stringResource(R.string.row_help_sub),
             Color(0xFF2563EB), { RowGlyph("?") }, onHelp)
         SettingsDivider()
-        SettingsRow("Send feedback", "Open your email app",
+        SettingsRow(stringResource(R.string.row_feedback_title), stringResource(R.string.row_feedback_sub),
             Color(0xFF16A34A), { RowIcon(Icons.Filled.Email) }, onContact)
+    }
+}
+
+@Composable
+private fun currentLanguageLabel(): String {
+    val context = LocalContext.current
+    val code = context.getSharedPreferences("spendsense_prefs", Context.MODE_PRIVATE)
+        .getString("app_language", "") ?: ""
+    return when (code) {
+        "en" -> "English"
+        "hi" -> "हिन्दी"
+        "mr" -> "मराठी"
+        else -> stringResource(R.string.language_system)
     }
 }

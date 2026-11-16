@@ -1,5 +1,6 @@
 package com.rohit.spendsense
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,6 +18,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rohit.spendsense.ui.theme.SpendSenseAITheme
 
 class MainActivity : ComponentActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -29,7 +35,8 @@ class MainActivity : ComponentActivity() {
                 "dark" -> true
                 else -> systemDark
             }
-            var showWelcome by rememberSaveable { mutableStateOf(!vm.welcomeDone) }
+            // The welcome page shows every time the app is opened.
+            var showWelcome by rememberSaveable { mutableStateOf(true) }
             val lightIcons = dark || showWelcome
 
             LaunchedEffect(lightIcons) {

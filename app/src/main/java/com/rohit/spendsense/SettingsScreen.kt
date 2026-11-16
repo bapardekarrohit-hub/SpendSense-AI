@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -137,7 +138,7 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "Settings",
+            text = stringResource(R.string.nav_settings),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -174,11 +175,6 @@ fun SettingsScreen(
             onCloud = { dialog = SettingsDialog.Cloud },
             onImport = { importLauncher.launch(arrayOf("*/*")) },
             onExport = { startExport() },
-            onWelcome = {
-                viewModel.showWelcomeNextLaunch()
-                Toast.makeText(context, "Welcome page will show next time", Toast.LENGTH_SHORT)
-                    .show()
-            },
             onDelete = { dialog = SettingsDialog.DeleteAll }
         )
         HelpSection(
@@ -186,7 +182,7 @@ fun SettingsScreen(
             onContact = { sendFeedback(context) }
         )
         Text(
-            text = "SpendSense AI · v1.0 · Your data stays on this phone",
+            text = stringResource(R.string.settings_footer),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -220,11 +216,7 @@ fun SettingsScreen(
             close
         )
 
-        SettingsDialog.Language -> InfoDialog(
-            "Language",
-            "English is the only language for now. More languages can be added later.",
-            close
-        )
+        SettingsDialog.Language -> LanguageDialog(close)
 
         SettingsDialog.Cloud -> BackupDialog(
             transactionCount = transactions.size,

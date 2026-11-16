@@ -1,10 +1,6 @@
 package com.rohit.spendsense
 
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +20,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,11 +35,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
-
-private const val DEFAULT_SERVER = "http://192.168.0.102:8000"
 
 private fun money(v: Double) = CurrencySettings.symbol + String.format(Locale.US, "%,.0f", v)
 
@@ -64,44 +58,12 @@ fun AiInsightsScreen(
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("spendsense_prefs", Context.MODE_PRIVATE) }
     val scope = rememberCoroutineScope()
-    var serverUrl by remember {
-        mutableStateOf(prefs.getString("ai_server_url", DEFAULT_SERVER) ?: DEFAULT_SERVER)
-    }
     var horizon by remember { mutableStateOf(7) }
     var dismissed by remember {
         mutableStateOf(prefs.getStringSet("dismissed_anomalies", emptySet())?.toSet() ?: emptySet())
     }
     var state by remember { mutableStateOf<AiState>(AiState.Idle) }
     val hasExpenses = transactions.any { it.type == TransactionType.EXPENSE }
-    val lanPermission = "android.permission.ACCESS_LOCAL_NETWORK"
-
-    val runAnalysis: () -> Unit = {
-        prefs.edit().putString("ai_server_url", serverUrl.trim()).apply()
-        state = AiState.Loading
-        scope.launch {
-            state = try {
-                val report = AiClient.analyze(serverUrl, transactions, monthlyBudget, horizon, dismissed)
-                report.forecast?.let { ForecastLog.save(context, it.days) }
-                AiState.Success(report)
-            } catch (e: AiException) {
-                AiState.Error(e.message ?: "Something went wrong.")
-            } catch (e: Exception) {
-                AiState.Error("Unexpected problem: ${e.message}")
-            }
-        }
-    }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            runAnalysis()
-        } else {
-            state = AiState.Error(
-                "Android needs the \"Nearby devices\" permission to reach your PC on your Wi-Fi. Allow it and try again."
-            )
-        }
-    }
 
     Column(
         modifier = modifier
@@ -117,18 +79,9 @@ fun AiInsightsScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            "Forecast, unusual spending and insights calculated by your Python server. " +
-                    "Your transactions (without notes) are sent to the address below, so use only a server you run yourself.",
+            "Forecast, unusual spending and insights, calculated on this phone. Nothing is sent anywhere.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        OutlinedTextField(
-            value = serverUrl,
-            onValueChange = { serverUrl = it },
-            label = { Text("Server address") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -138,20 +91,32 @@ fun AiInsightsScreen(
 
         Button(
             onClick = {
-                val needsPermission = Build.VERSION.SDK_INT >= 37 &&
-                        ContextCompat.checkSelfPermission(context, lanPermission) !=
-                        PackageManager.PERMISSION_GRANTED
-                if (needsPermission) permissionLauncher.launch(lanPermission) else runAnalysis()
+                state = AiState.Loading
+                scope.launch {
+                    state = try {
+                        val report = withContext(Dispatchers.Default) {
+                            OnDeviceAnalyzer.analyze(transactions, monthlyBudget, horizon, dismissed)
+                        }
+                        report.forecast?.let { ForecastLog.save(context, it.days) }
+                        AiState.Success(report)
+                    } catch (e: AiException) {
+                        AiState.Error(e.message ?: "Something went wrong.")
+                    } catch (e: Exception) {
+                        AiState.Error("Unexpected problem: ${e.message}")
+                    }
+                }
             },
             enabled = state !is AiState.Loading && hasExpenses,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (hasExpenses) "Analyze my spending" else "Add some expenses first")
         }
+
         ForecastReportCardView(transactions = transactions, refreshKey = state)
+
         when (val s = state) {
             AiState.Idle -> Text(
-                "Tap the button to run the analysis. Make sure the server is running on your PC.",
+                "Tap the button to analyse your spending on this phone.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
@@ -239,6 +204,11 @@ private fun ReportView(report: AiReport, dismissed: Set<String>, onDismiss: (Str
                 TextButton(onClick = { onDismiss(a.key) }) { Text("Dismiss – this is normal for me") }
             }
         }
+        Text(
+            "Method: upper fence per category (needs 8+ expenses in a category) and at least 2x its median.",
+            style = MaterialTheme.typography.bodySmall,
+            color = muted
+        )
     }
 
     SectionCard("Insights (as of ${report.asOf})") {

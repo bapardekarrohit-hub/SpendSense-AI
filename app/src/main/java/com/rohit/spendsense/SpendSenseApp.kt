@@ -1,5 +1,6 @@
 package com.rohit.spendsense
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,25 +27,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 
-enum class AppScreen(val title: String, val icon: ImageVector) {
-    Dashboard("Dashboard", Icons.Filled.Home),
-    Transactions("History", Icons.AutoMirrored.Filled.List),
-    Analytics("Analytics", Icons.Filled.DateRange),
-    Budgets("Budgets", Icons.Filled.AccountBox),
-    AiInsights("AI", Icons.Filled.Star),
-    Settings("Settings", Icons.Filled.Settings)
+enum class AppScreen(@StringRes val titleRes: Int, val icon: ImageVector) {
+    Dashboard(R.string.nav_dashboard, Icons.Filled.Home),
+    Transactions(R.string.nav_history, Icons.AutoMirrored.Filled.List),
+    Analytics(R.string.nav_analytics, Icons.Filled.DateRange),
+    Budgets(R.string.nav_budgets, Icons.Filled.AccountBox),
+    AiInsights(R.string.nav_ai, Icons.Filled.Star),
+    Settings(R.string.nav_settings, Icons.Filled.Settings)
 }
 
 @Composable
 fun SpendSenseApp() {
     val appContext = LocalContext.current
     LaunchedEffect(Unit) { PrivacyControls.apply(appContext) }
+
     val viewModel: MainViewModel = viewModel()
     val transactions by viewModel.transactions.collectAsStateWithLifecycle()
     val monthlyBudget by viewModel.monthlyBudget.collectAsStateWithLifecycle()
@@ -58,11 +61,12 @@ fun SpendSenseApp() {
         bottomBar = {
             NavigationBar {
                 screens.forEachIndexed { index, screen ->
+                    val title = stringResource(screen.titleRes)
                     NavigationBarItem(
                         selected = selectedIndex == index,
                         onClick = { selectedIndex = index },
-                        icon = { Icon(screen.icon, contentDescription = screen.title) },
-                        label = { Text(text = screen.title, maxLines = 1, fontSize = 11.sp) }
+                        icon = { Icon(screen.icon, contentDescription = title) },
+                        label = { Text(text = title, maxLines = 1, fontSize = 11.sp) }
                     )
                 }
             }

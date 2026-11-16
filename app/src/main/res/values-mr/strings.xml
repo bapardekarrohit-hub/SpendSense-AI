@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_dashboard">डॅशबोर्ड</string>
+    <string name="nav_history">इतिहास</string>
+    <string name="nav_analytics">विश्लेषण</string>
+    <string name="nav_budgets">बजेट</string>
+    <string name="nav_ai">एआय</string>
+    <string name="nav_settings">सेटिंग्ज</string>
+    <string name="language_title">भाषा</string>
+    <string name="language_system">सिस्टम डीफॉल्ट</string>
+    <string name="cancel">रद्द करा</string>
+    <string name="settings_footer">SpendSense AI · v1.0 · तुमचा डेटा याच फोनवर राहतो</string>
+    <string name="settings_account">खाते</string>
+    <string name="row_profile_title">प्रोफाइल माहिती</string>
+    <string name="row_profile_sub">तुमची वैयक्तिक माहिती बदला</string>
+    <string name="row_password_title">पासवर्ड बदला</string>
+    <string name="row_password_sub">यासाठी खाते लागेल (नंतर येईल)</string>
+    <string name="soon">लवकरच</string>
+    <string name="row_privacy_title">गोपनीयता आणि डेटा</string>
+    <string name="row_privacy_sub">तुमचा डेटा कसा हाताळला जातो</string>
+    <string name="settings_preferences">अॅप प्राधान्ये</string>
+    <string name="theme_title">थीम</string>
+    <string name="theme_sub">तुमचे आवडते स्वरूप निवडा</string>
+    <string name="theme_system">सिस्टम</string>
+    <string name="theme_light">लाइट</string>
+    <string name="theme_dark">डार्क</string>
+    <string name="row_language_title">भाषा</string>
+    <string name="row_language_sub">अॅपची भाषा निवडा</string>
+    <string name="row_currency_title">चलन</string>
+    <string name="row_currency_sub">तुमचे आवडते चलन निवडा</string>
+    <string name="row_notif_title">सूचना</string>
+    <string name="row_notif_sub" formatted="false">80% आणि 100% वर बजेट अलर्ट</string>
+    <string name="settings_data">डेटा आणि बॅकअप</string>
+    <string name="row_backup_title">बॅकअप आणि रिस्टोअर</string>
+    <string name="row_backup_sub">CSV बॅकअप सेव्ह करा किंवा परत मिळवा</string>
+    <string name="row_import_title">CSV मधून इम्पोर्ट करा</string>
+    <string name="row_import_sub">फाइलमधून व्यवहार जोडा</string>
+    <string name="row_export_title">CSV मध्ये एक्सपोर्ट करा</string>
+    <string name="row_export_sub">तुमचे व्यवहार फाइलमध्ये सेव्ह करा</string>
+    <string name="row_delete_title">सर्व डेटा हटवा</string>
+    <string name="row_delete_sub">या फोनवरून सर्व काही हटवा</string>
+    <string name="settings_help">मदत आणि सहाय्य</string>
+    <string name="row_help_title">मदत केंद्र</string>
+    <string name="row_help_sub">वारंवार विचारले जाणारे प्रश्न आणि मार्गदर्शक</string>
+    <string name="row_feedback_title">अभिप्राय पाठवा</string>
+    <string name="row_feedback_sub">तुमचे ईमेल अॅप उघडा</string>
+    <string name="profile_your_name">तुमचे नाव</string>
+    <string name="profile_tap_to_add">तुमची माहिती जोडण्यासाठी टॅप करा</string>
+</resources>

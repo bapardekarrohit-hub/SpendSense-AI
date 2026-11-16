@@ -63,11 +63,12 @@ fun PrivacyDialog(onClose: () -> Unit) {
                 OutlinedButton(
                     onClick = {
                         PrivacyControls.clearAiData(context)
-                        Toast.makeText(context, "AI server address and dismissed alerts cleared", Toast.LENGTH_SHORT).show()
+                        ForecastLog.clear(context)
+                        Toast.makeText(context, "Dismissed alerts and forecast history cleared", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Clear AI server address and dismissed alerts")
+                    Text("Clear dismissed alerts and forecast history")
                 }
 
                 Text("What stays on this phone", fontWeight = FontWeight.SemiBold)
@@ -80,10 +81,8 @@ fun PrivacyDialog(onClose: () -> Unit) {
 
                 Text("What can leave this phone", fontWeight = FontWeight.SemiBold)
                 Text(
-                    "1. When you tap Analyze on the AI tab: title, amount, type, category and date of " +
-                            "your transactions (no notes, no payment method) go to the server address " +
-                            "you typed. Use only a server you run yourself.\n" +
-                            "2. When you save a backup or export: a CSV file in the place you choose.",
+                    "Only when you save a backup or export: a CSV file in the place you choose. " +
+                            "The AI tab runs entirely on this phone and sends nothing anywhere.",
                     style = MaterialTheme.typography.bodySmall,
                     color = muted
                 )
